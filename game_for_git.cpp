@@ -173,6 +173,12 @@ struct Account {
     void set_balance(float new_bal) {balance = new_bal;}
     void add_balance(float added) {balance += added;}
 
+    void end_current_game() {
+        balance += current_game.get_income();
+        history.push_back(current_game);
+        current_game.status = Game::NOT_STARTED;
+    }
+
     void start_new_game() {
         end_current_game();
         auto [rows, cols] = get_default_size();
@@ -186,12 +192,6 @@ struct Account {
             case Game::VERY_HARD: goods_chance = 2000; break;
         }
         current_game.start(rows, cols, bet, goods_chance);
-    }
-
-    void end_current_game() {
-        balance += current_game.get_income();
-        history.push_back(current_game);
-        current_game.status = Game::NOT_STARTED;
     }
 
     Game::game_mode get_default_mode() {return default_mode;}
