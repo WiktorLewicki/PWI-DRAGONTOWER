@@ -203,11 +203,83 @@ struct Account {
 struct Gameplay {
     Account account;
     Gameplay() {
-        // create the account
+        account.set_balance(100.0);
+        account.set_default_bet(10.0);
+        account.set_default_size(6, 4);
+        account.set_default_mode(Game::game_mode::MEDIUM);
+
+        cout << "Witaj w grze! Twoje konto zostało utworzone z początkowym saldem 100 jednostek.\n";
+        cout << "Domyślny rozmiar planszy to 6x4, poziom trudności to MEDIUM, a stawka to 10 jednostek.\n";
     }
     void start() {
-        // while (true) {process queries}
+    while (true) {
+        cout << "\nTwój balans: " << account.get_balance() << " jednostek.\n";
+        cout << "Wybierz jedną z opcji:\n";
+        cout << "1. Rozpocznij nową grę\n";
+        cout << "2. Wykonaj ruch (otwórz komórkę)\n";
+        cout << "3. Zakończ bieżącą grę\n";
+        cout << "4. Wyjdź z gry\n";
+        cout << "5. Zmień domyślne ustawienia\n";
+
+        int choice;
+        cin >> choice;
+
+        if (choice == 1) {
+            account.start_new_game();
+            cout << "Nowa gra rozpoczęta!\n";
+        } else if (choice == 2) {
+            if (account.current_game.get_game_status() != Game::game_status::ONGOING) {
+                cout << "Nie masz aktywnej gry. Rozpocznij nową grę, aby kontynuować.\n";
+                continue;
+            }
+            int i, j;
+            cout << "Podaj współrzędne komórki (wiersz i kolumna): ";
+            cin >> i >> j;
+            if (account.current_game.make_move(i, j)) {
+                cout << "Dobra komórka! Kontynuuj.\n";
+            } else {
+                cout << "Zła komórka! Uważaj.\n";
+            }
+        } else if (choice == 3) {
+            account.end_current_game();
+            cout << "Gra zakończona. Twój aktualny balans: " << account.get_balance() << " jednostek.\n";
+        } else if (choice == 4) {
+            cout << "Dziękujemy za grę! Do zobaczenia.\n";
+            break;
+        } else if (choice == 5) {
+            cout << "Zmień ustawienia gry:\n";
+            cout << "1. Domyślny poziom trudności\n";
+            cout << "2. Domyślna stawka\n";
+            cout << "3. Domyślny rozmiar planszy\n";
+            int subChoice;
+            cin >> subChoice;
+
+            if (subChoice == 1) {
+                int newMode;
+                cout << "Wybierz poziom trudności (0-EASY, 1-MEDIUM, 2-HARD, 3-VERY_HARD): ";
+                cin >> newMode;
+                account.set_default_mode(static_cast<Game::game_mode>(newMode));
+                cout << "Zmieniono domyślny poziom trudności.\n";
+            } else if (subChoice == 2) {
+                float newBet;
+                cout << "Podaj nową domyślną stawkę: ";
+                cin >> newBet;
+                account.set_default_bet(newBet);
+                cout << "Zmieniono domyślną stawkę.\n";
+            } else if (subChoice == 3) {
+                int newRows, newCols;
+                cout << "Podaj nowy rozmiar planszy (wiersze i kolumny): ";
+                cin >> newRows >> newCols;
+                account.set_default_size(newRows, newCols);
+                cout << "Zmieniono domyślny rozmiar planszy.\n";
+            } else {
+                cout << "Nieprawidłowa opcja.\n";
+            }
+        } else {
+            cout << "Nieprawidłowy wybór. Spróbuj ponownie.\n";
+        }
     }
+}
 };
 
 signed main() {
