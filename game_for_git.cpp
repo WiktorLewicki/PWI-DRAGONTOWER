@@ -182,16 +182,7 @@ struct Account {
     void start_new_game() {
         end_current_game();
         auto [rows, cols] = get_default_size();
-        float bet = get_default_bet();
-        int goods_chance;
-
-        switch (default_mode) {
-            case Game::EASY: goods_chance = 8000; break;
-            case Game::MEDIUM: goods_chance = 6000; break;
-            case Game::HARD: goods_chance = 4000; break;
-            case Game::VERY_HARD: goods_chance = 2000; break;
-        }
-        current_game.start(rows, cols, bet, goods_chance);
+        current_game.start(rows, cols, bet, Game::EASY);
     }
 
     Game::game_mode get_default_mode() {return default_mode;}
