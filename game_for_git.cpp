@@ -174,7 +174,7 @@ struct Account {
     void add_balance(float added) {balance += added;}
 
     void end_current_game() {
-        balance += current_game.get_income();
+        add_balance(current_game.get_income());
         history.push_back(current_game);
         current_game.status = Game::NOT_STARTED;
     }
@@ -182,7 +182,11 @@ struct Account {
     void start_new_game() {
         end_current_game();
         auto [rows, cols] = get_default_size();
-        current_game.start(rows, cols, bet, Game::EASY);
+        float bet = get_default_bet();
+        Game::game_mode mode = get_default_mode();
+        assert(get_balance() >= bet);
+        add_balance(-bet);
+        current_game.start(rows, cols, bet, mode);
     }
 
     Game::game_mode get_default_mode() {return default_mode;}
