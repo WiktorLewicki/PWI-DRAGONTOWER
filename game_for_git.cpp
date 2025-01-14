@@ -2,6 +2,8 @@
 
 using namespace std;
 
+bool DEBUG = false;
+
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 int get_rand(int l, int r) {
     int d = r - l + 1;
@@ -26,8 +28,7 @@ struct Game {
     enum game_mode {
         EASY,
         MEDIUM,
-        HARD,
-        VERY_HARD
+        HARD
     };
 
     enum move_result {
@@ -52,14 +53,14 @@ struct Game {
         };
 
         int n, m;
-        int goods_chance;
+        int goods_cnt;
         int passed;
         vector <vector <Cell>> board;
 
         Board() {
             n = m = 0;
             board = {};
-            goods_chance = M;
+            goods_cnt = 0;
             passed = 0;
         }
 
@@ -67,16 +68,23 @@ struct Game {
 
         void init(int rows, int cols, int goods_c) {
             n = rows, m = cols;
-            goods_chance = goods_c;
+            goods_cnt = goods_c;
 
             assert(0 < n and 0 < m);
-            assert(0 <= goods_chance and goods_chance <= M);
+            assert(0 < goods_cnt and goods_cnt < m);
 
             board.resize(n, vector <Cell> (m));
             for (int i = 0; i < n; i++) {
-                for (int j = 0; j < m; j++) {
-                    bool is_good = get_rand(0, M) < goods_chance;
-                    board[i][j].set_good(is_good);
+                for (int j = 0; j < m; j++)
+                    board[i][j].set_good(false);
+
+                vector <int> unused(m);
+                iota(unused.begin(), unused.end(), 0);
+                for (int rep = 0; rep < goods_cnt; rep++) {
+                    int ind = get_rand(0, unused.size() - 1);
+                    int j = unused[ind];
+                    unused.erase(unused.begin() + j, unused.begin() + j + 1);
+                    board[i][j].set_good(true);
                 }
             }
         }
@@ -107,9 +115,19 @@ struct Game {
         } else if (gamemode == game_mode::MEDIUM) {
             return 5000;
         } else if (gamemode == game_mode::HARD) {
-            return 3750;
-        } else if (gamemode == game_mode::VERY_HARD) {
             return 2500;
+        } else assert(false);
+
+        return -1;
+    }
+
+    int get_cnt(game_mode gamemode) {
+        if (gamemode == game_mode::EASY) {
+            return 3;
+        } else if (gamemode == game_mode::MEDIUM) {
+            return 2;
+        } else if (gamemode == game_mode::HARD) {
+            return 1;
         } else assert(false);
 
         return -1;
@@ -131,8 +149,8 @@ struct Game {
     void start(int rows, int cols, float set_bet, game_mode set_mode) {
         mode = set_mode;
         bet = set_bet;
-        float chance = get_chance(mode);
-        board.init(rows, cols, chance);
+        int cnt = get_cnt(mode);
+        board.init(rows, cols, cnt);
         income = 0;
         status = game_status::ONGOING;
     }
@@ -146,8 +164,8 @@ struct Game {
     float calculate_income() {
         int passed = board.get_passed();
         float ans = bet * 0.98 / pow(get_chance(mode) * 1. / M, passed);
-        cout << get_mode_txt() << ' ' << get_chance(mode) << ' ' << bet << ' ' << passed << ' ' << ans << '\n';
-        cout.flush();
+        // cout << get_mode_txt() << ' ' << get_chance(mode) << ' ' << bet << ' ' << passed << ' ' << ans << '\n';
+        // cout.flush();
         return ans;
     }
 
@@ -185,8 +203,8 @@ struct Game {
             return "Medium";
         if (mode == game_mode::HARD)
             return "Hard";
-        if (mode == game_mode::VERY_HARD)
-            return "Very hard";
+        // if (mode == game_mode::VERY_HARD)
+        //     return "Very hard";
         assert(false);
         return "???";
     }
@@ -262,6 +280,10 @@ struct Account {
         vector <string> txt(n, string(m, '?'));
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
+                if (DEBUG) {
+                    txt[i][j] = board.board[i][j].is_good() ? '#' : '.';
+                    continue;
+                }
                 if (i == cur_i) {
                     if (j == 0 or j == m - 1)
                         txt[i][j] = (j == 0 ? '>' : '<');
@@ -329,6 +351,11 @@ struct Gameplay {
         assert(account.current_game.get_game_status() != Game::game_status::FINISHED);
 
         if (choice == 1) {
+            if (account.current_game.get_game_status() == Game::game_status::ONGOING) {
+                cout << "Masz aktywną grę. Zakończ ją, aby kontynuować.\n";
+                continue;
+            }
+            
             bool started = account.start_new_game();
             if (!started) {
                 cout << "Nie możesz zacząć nową grę przez niedostatni balans konta." << '\n';
@@ -376,13 +403,13 @@ struct Gameplay {
             } else if (result == Game::move_result::WIN) {
                 cout << "Dobra komórka!\n";
                 cout << "Wygrałeś i otrzymałeś " << income << "!" << '\n';
-                cout << "Twój aktualny balans: " << balance << "." << '\n';
                 account.end_current_game();
+                cout << "Twój aktualny balans: " << balance << "." << '\n';
             } else if (result == Game::move_result::LOSE) {
                 cout << "Zła komórka!\n";
                 cout << "Niestety, przegrałeś." << '\n';
-                cout << "Twój aktualny balans: " << balance << "." << '\n';
                 account.end_current_game();
+                cout << "Twój aktualny balans: " << balance << "." << '\n';
             } else assert(false);
         } else if (choice == 3) {
             if (account.current_game.get_game_status() != Game::game_status::ONGOING) {
@@ -410,10 +437,11 @@ struct Gameplay {
 
             if (subChoice == 1) {
                 int newMode;
-                cout << "Wybierz poziom trudności (0-EASY, 1-MEDIUM, 2-HARD, 3-VERY_HARD): ";
+                // cout << "Wybierz poziom trudności (0-EASY, 1-MEDIUM, 2-HARD, 3-VERY_HARD): ";
+                cout << "Wybierz poziom trudności (0-EASY, 1-MEDIUM, 2-HARD): ";
                 cin >> newMode;
-                if (newMode < 0 or 3 < newMode) {
-                    cout << "Poziom ma być liczbą całkowitą od 0 do 3" << '\n';
+                if (newMode < 0 or 2 < newMode) {
+                    cout << "Poziom ma być liczbą całkowitą od 0 do 2" << '\n';
                     continue;
                 }
                 account.set_default_mode(static_cast<Game::game_mode>(newMode));
@@ -473,6 +501,24 @@ struct Gameplay {
                 cout << '\n';
             }
             cout << '\n';
+        } else if (choice == 42) {
+            if (!DEBUG) {
+                cout << "Nieprawidłowy wybór. Spróbuj ponownie.\n";
+            } else {
+                if (account.current_game.get_game_status() != Game::game_status::ONGOING) {
+                    cout << "Nie masz aktywnej gry.\n";
+                    continue;
+                }
+
+                cout << "Debug. Showing the whole grid:\n";
+                auto [n, m] = account.current_game.board.get_size();
+
+                auto board_txt = account.get_board_txt();
+                for (int i = n - 1; i >= 0; --i) {
+                    cout << board_txt[i] << '\n';
+                }
+                cout << "\n";
+            }
         } else {
             cout << "Nieprawidłowy wybór. Spróbuj ponownie.\n";
         }
