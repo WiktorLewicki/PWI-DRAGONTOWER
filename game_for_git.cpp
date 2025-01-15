@@ -244,7 +244,7 @@ struct Account {
     void add_balance(float added) {balance += added;}
 
     void end_current_game() {
-        auto was_status = current_game.status;
+        Game::game_status was_status = current_game.status;
         current_game.end(true);
         add_balance(current_game.get_income());
         if (was_status != Game::game_status::NOT_STARTED)
@@ -258,7 +258,8 @@ struct Account {
         if (bal < bet)
             return false;
         end_current_game();
-        auto [rows, cols] = get_default_size();
+        pair <int, int> size = get_default_size();
+        int rows = size.first, cols = size.second;
         Game::game_mode mode = get_default_mode();
         assert(bal >= bet);
         add_balance(-bet);
@@ -272,10 +273,11 @@ struct Account {
     }
 
     vector <string> get_board_txt() {
-        auto board = get_board();
+        Game::Board board = get_board();
 
         int cur_i = board.get_passed();
-        auto [n, m] = board.get_size();
+        pair <int, int> size = board.get_size();
+        int n = size.first, m = size.second;
 
         vector <string> txt(n, string(m, '?'));
         for (int i = 0; i < n; i++) {
@@ -373,10 +375,11 @@ struct Gameplay {
                 continue;
             }
 
-            auto [n, m] = account.current_game.board.get_size();
+            pair <int, int> size = account.current_game.board.get_size();
+            int n = size.first, m = size.second;
 
             cout << "\n" << "Aktualny stan planszy (aktualny wiersz poznaczony przez >----<):" << "\n";
-            auto board_txt = account.get_board_txt();
+            vector <string> board_txt = account.get_board_txt();
             for (int i = n - 1; i >= 0; --i) {
                 cout << board_txt[i] << '\n';
             }
@@ -392,7 +395,7 @@ struct Gameplay {
             }
             --j;
 
-            auto result = account.current_game.make_move(j);
+            Game::move_result result = account.current_game.make_move(j);
 
             float income = account.current_game.get_income();
             float balance = account.get_balance();
@@ -471,7 +474,7 @@ struct Gameplay {
             }
         } else if (choice == 6) {
             cout << "\n" << "Historia Twoich gier:" << "\n";
-            auto history = account.get_history();
+            vector <Game> history = account.get_history();
             
             cout << rjust("#", 2) << ": ";
             cout << rjust("game mode", 9) << ' ';
@@ -487,7 +490,7 @@ struct Gameplay {
                 cout << '\n';
             }
             cout << '\n';
-            auto current_game = account.current_game;
+            Game current_game = account.current_game;
             if (current_game.get_game_status() == Game::game_status::NOT_STARTED) {
                 cout << "Aktualnej gry nie ma";
                 cout << '\n';
@@ -511,9 +514,11 @@ struct Gameplay {
                 }
 
                 cout << "Debug. Showing the whole grid:\n";
-                auto [n, m] = account.current_game.board.get_size();
 
-                auto board_txt = account.get_board_txt();
+                pair <int, int> size = account.current_game.board.get_size();
+                int n = size.first, m = size.second;
+
+                vector <string> board_txt = account.get_board_txt();
                 for (int i = n - 1; i >= 0; --i) {
                     cout << board_txt[i] << '\n';
                 }
