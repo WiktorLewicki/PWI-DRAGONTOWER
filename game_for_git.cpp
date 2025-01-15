@@ -163,7 +163,7 @@ struct Game {
 
     float calculate_income() {
         int passed = board.get_passed();
-        float ans = bet * 0.98 / pow(get_chance(mode) * 1. / M, passed);
+        float ans = bet * 0.98 / pow(get_chance(mode) * 1. / M, passed + 1);
         // cout << get_mode_txt() << ' ' << get_chance(mode) << ' ' << bet << ' ' << passed << ' ' << ans << '\n';
         // cout.flush();
         return ans;
