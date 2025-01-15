@@ -83,7 +83,7 @@ struct Game {
                 for (int rep = 0; rep < goods_cnt; rep++) {
                     int ind = get_rand(0, unused.size() - 1);
                     int j = unused[ind];
-                    unused.erase(unused.begin() + j, unused.begin() + j + 1);
+                    unused.erase(unused.begin() + ind, unused.begin() + ind + 1);
                     board[i][j].set_good(true);
                 }
             }
