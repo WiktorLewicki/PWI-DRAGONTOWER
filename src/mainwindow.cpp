@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "gameplay.h"
+using namespace QtCharts;
 Gameplay game;
 vector<long double> balance_history;
 int showMoneyDialog() {
