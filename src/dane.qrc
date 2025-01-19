@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>img/smok1.png</file>
+        <file>img/new_game.png</file>
+        <file>img/money.png</file>
+        <file>img/jajko_traf.png</file>
+        <file>img/smok2.png</file>
+        <file>img/smok3.png</file>
+        <file>img/cashout.png</file>
+        <file>img/nietrafione_pole.png</file>
+        <file>img/przegrane_pole.png</file>
+        <file>img/puste_pole.png</file>
+        <file>img/trafione_pole.png</file>
+        <file>img/wybierane_pole.png</file>
+    </qresource>
+</RCC>
