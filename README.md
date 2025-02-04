@@ -89,21 +89,14 @@ Projekt został zrealizowany przez:
 - **Milena Oberzig**
 - **Olivia Szymanowska**
 - **Kyrylo Kalivanov**
-- **Wiktoria Siejba**
-- **Mateusz Martusewicz**
-- **Kacper Środawa**
 
 ---
 
 ## Podział zadań
 **Wiktor Lewicki** - Zarządzał projektem i podziałem zadań, zaprogramował wszystko co jest w QT, zadbał o multiplatformowość.
 
-**Illia Fursov** - Stworzył i napisał w większości gameplay.h i gameplay.cpp oraz zarządzał osobami, które pomagały w pisaniu tych plików.
+**Illia Fursov**, **Kyrylo Kalivanov** - Stworzyli i napisali w większości gameplay.h i gameplay.cpp
 
 **Milena Oberzig** i **Olivia Szymanowska** - Zrobiły piękne grafiki które zostały wykorzystane w projekcie, testowały działanie programu.
-
-**Kyrylo Kalivanov**, **Mateusz Martusewicz** i **Kacper Środawa** - Pomagali w pisaniu i testowaniu logiki w gameplay.h i gameplay.cpp.
-
-**Wiktoria Siejba** - Pomagała w testowaniu, sporządziła dokumentację, pomagała w odbugowywaniu.
 
 ---
